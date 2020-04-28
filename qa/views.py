@@ -9,10 +9,10 @@ from rest_framework.views import APIView
 from rest_framework import generics, mixins
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
 
 from .models import Question, Answer
-from .serializers import QuestionSerializer, AnswerSerializer
+from .serializers import QuestionSerializer, AnswerSerializer, QuestionAnswerSerializer
 
 
 class AnswerGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, \
@@ -24,8 +24,8 @@ class AnswerGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, \
 
     lookup_field = 'id'
     
-    #authentication_classes = [SessionAuthentication, BasicAuthentication]
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    #authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, id = None):
@@ -54,11 +54,16 @@ class QuestionGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, \
 
     lookup_field = 'id'
     
-    #authentication_classes = [SessionAuthentication, BasicAuthentication]
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    #authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+
+    #def perform_create(self, serializer):
+    #    serializer.save(user=self.request.user)
+
     def get(self, request, id = None):
+        user = serializers.HiddenField(default=None)
         if id:
             return self.retrieve(request)
         else:
@@ -74,3 +79,31 @@ class QuestionGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, \
         return self.destroy(request, id) 
 
 
+class QuestionAnswerGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, \
+                            mixins.CreateModelMixin, mixins.UpdateModelMixin, \
+                            mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
+    
+    serializer_class = QuestionAnswerSerializer
+    queryset = Question.objects.all()
+
+    lookup_field = 'id'
+    
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    #authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id = None):
+        if id:
+            return self.retrieve(request)
+        else:
+            return self.list(request)
+
+    def post(self, request):
+        return self.create(request)
+
+    def put(self, request, id=None):
+        return self.update(request, id)   
+         
+    def delete(self, request, id = None):
+        return self.destroy(request, id) 
+        
