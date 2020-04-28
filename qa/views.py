@@ -15,6 +15,36 @@ from .models import Question, Answer
 from .serializers import QuestionSerializer, AnswerSerializer
 
 
+class AnswerGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, \
+                            mixins.CreateModelMixin, mixins.UpdateModelMixin, \
+                            mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
+    
+    serializer_class = AnswerSerializer
+    queryset = Answer.objects.all()
+
+    lookup_field = 'id'
+    
+    #authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id = None):
+        if id:
+            return self.retrieve(request)
+        else:
+            return self.list(request)
+    
+    def post(self, request):
+            return self.create(request)
+    
+    def put(self, request, id=None):
+            return self.update(request, id)   
+         
+    def delete(self, request, id = None):
+        return self.destroy(request, id)       
+
+
+
 class QuestionGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, \
                             mixins.CreateModelMixin, mixins.UpdateModelMixin, \
                             mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
@@ -23,8 +53,9 @@ class QuestionGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, \
     queryset = Question.objects.all()
 
     lookup_field = 'id'
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    #authentication_classes = [TokenAuthentication]
+    
+    #authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, id = None):
@@ -43,30 +74,3 @@ class QuestionGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, \
         return self.destroy(request, id) 
 
 
-class AnswerGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, \
-                            mixins.CreateModelMixin, mixins.UpdateModelMixin, \
-                            mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
-    
-    serializer_class = AnswerSerializer
-    queryset = Answer.objects.all()
-
-    lookup_field = 'id'
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    #authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, id = None):
-        if id:
-            return self.retrieve(request)
-        else:
-            return self.list(request)
-    
-    def post(self, request):
-        return self.create(request)
-    
-    def put(self, request, id=None):
-        return self.update(request, id)   
-         
-    def delete(self, request, id = None):
-        return self.destroy(request, id)       
-          
